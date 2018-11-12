@@ -2,6 +2,7 @@ package poset
 
 import (
 	"bytes"
+	"fmt"
 	"encoding/json"
 )
 
@@ -77,6 +78,7 @@ func (r *RoundInfo) SetFame(x string, f bool) {
 //return true if no witnesses' fame is left undefined
 func (r *RoundInfo) WitnessesDecided() bool {
 	for _, e := range r.Events {
+		fmt.Printf("WITNESS %#v\n", e)
 		if e.Witness && e.Famous == Undefined {
 			return false
 		}

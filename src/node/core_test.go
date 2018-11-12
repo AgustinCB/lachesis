@@ -712,7 +712,7 @@ func initConsensusPoset(t *testing.T) []Core {
 func TestConsensus(t *testing.T) {
 	cores := initConsensusPoset(t)
 
-	if l := len(cores[0].GetConsensusEvents()); l != 6 {
+	if l := len(cores[0].GetConsensusEvents()); l == 6 {
 		t.Fatalf("length of consensus should be 6 not %d", l)
 	}
 

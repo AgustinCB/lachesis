@@ -1,6 +1,7 @@
 package poset
 
 import (
+	"fmt"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -58,6 +59,7 @@ func (r *RoundInfo) SetFame(x string, f bool) {
 //return true if no witnesses' fame is left undefined
 func (r *RoundInfo) WitnessesDecided() bool {
 	for _, e := range r.Message.Events {
+		fmt.Println("WITNESS", e)
 		if e.Witness && e.Famous == Trilean_UNDEFINED {
 			return false
 		}

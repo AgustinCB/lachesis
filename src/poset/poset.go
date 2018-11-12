@@ -780,6 +780,7 @@ func (p *Poset) setWireInfo(event *Event) error {
 }
 
 func (p *Poset) updatePendingRounds(decidedRounds map[int64]int64) {
+	fmt.Printf("UPDATING???? %#v\n", decidedRounds)
 	for _, ur := range p.PendingRounds {
 		if _, ok := decidedRounds[ur.Index]; ok {
 			ur.Decided = true
@@ -864,6 +865,7 @@ witnesses if necessary. Pushes Rounds in the PendingRounds queue if necessary.
 */
 func (p *Poset) DivideRounds() error {
 
+	fmt.Println("UNDETERMINED EVENTS", len(p.UndeterminedEvents))
 	for _, hash := range p.UndeterminedEvents {
 
 		ev, err := p.Store.GetEvent(hash)
@@ -904,10 +906,12 @@ func (p *Poset) DivideRounds() error {
 				other Events to be added on top, but the base layer must not be
 				reprocessed.
 			*/
+			fmt.Println("PEPEPE", roundNumber, roundInfo.queued, p.LastConsensusRound)
 			if !roundInfo.queued &&
 				(p.LastConsensusRound == nil ||
 					roundNumber >= *p.LastConsensusRound) {
 
+				fmt.Println("ADDING MORE")
 				p.PendingRounds = append(p.PendingRounds, &pendingRound{roundNumber, false})
 				roundInfo.queued = true
 			}
@@ -1000,10 +1004,12 @@ func (p *Poset) DecideFame() error {
 			if roundInfo.IsDecided(x) {
 				continue
 			}
+			fmt.Println("IT ISNT DECIDED", p.Store.LastRound(), roundIndex)
 		VOTE_LOOP:
 			for j := roundIndex + 1; j <= p.Store.LastRound(); j++ {
 				for _, y := range p.Store.RoundWitnesses(j) {
 					diff := j - roundIndex
+					fmt.Println("DIFF", diff)
 					if diff == 1 {
 						ycx, err := p.see(y, x)
 						if err != nil {
@@ -1040,6 +1046,7 @@ func (p *Poset) DecideFame() error {
 
 						//normal round
 						if math.Mod(float64(diff), float64(p.Participants.Len())) > 0 {
+							fmt.Println("CHECKING SUPER MAJORITY", t, p.superMajority)
 							if t >= p.superMajority {
 								roundInfo.SetFame(x, v)
 								setVote(votes, y, x, v)
@@ -1064,6 +1071,7 @@ func (p *Poset) DecideFame() error {
 			return err
 		}
 
+		fmt.Println("MAYBE MARKING", roundInfo.WitnessesDecided())
 		if roundInfo.WitnessesDecided() {
 			decidedRounds[roundIndex] = int64(pos)
 		}
@@ -1174,6 +1182,7 @@ func (p *Poset) ProcessDecidedRounds() error {
 		p.PendingRounds = p.PendingRounds[processedIndex:]
 	}()
 
+	fmt.Println("PENDING ROUNDS?", len(p.PendingRounds))
 	for _, r := range p.PendingRounds {
 
 		//Although it is possible for a Round to be 'decided' before a previous
@@ -1182,6 +1191,7 @@ func (p *Poset) ProcessDecidedRounds() error {
 		if !r.Decided {
 			break
 		}
+		fmt.Println("NOT DECIDED")
 
 		//This is similar to the lower bound introduced in DivideRounds; it is
 		//redundant in normal operations, but becomes necessary after a Reset.
@@ -1243,6 +1253,7 @@ func (p *Poset) ProcessDecidedRounds() error {
 
 		processedIndex++
 
+		fmt.Println(p.LastConsensusRound, r.Index)
 		if p.LastConsensusRound == nil || r.Index > *p.LastConsensusRound {
 			p.setLastConsensusRound(r.Index)
 		}

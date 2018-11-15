@@ -1071,8 +1071,11 @@ func (p *Poset) DecideFame() error {
 			return err
 		}
 
+		fmt.Println("PREV FIRST")
 		fmt.Println("MAYBE MARKING", roundInfo.WitnessesDecided())
+		fmt.Println("PAST FIRST")
 		if roundInfo.WitnessesDecided() {
+			fmt.Println("MARKING", roundIndex, pos)
 			decidedRounds[roundIndex] = int64(pos)
 		}
 
